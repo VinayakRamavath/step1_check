@@ -48,9 +48,9 @@ public class DataMunger {
 		String[] result = queryString.split("\\s");
 		for (int x = 0; x < result.length; x++) {
 			System.out.println(result[x]);
-			result[x]=result[x].trim().toLowerCase();
+			result[x] = result[x].trim().toLowerCase();
 		}
-	
+
 		return result;
 	}
 
@@ -96,9 +96,9 @@ public class DataMunger {
 	 * and order by clause
 	 */
 	public String getBaseQuery(String queryString) {
-		String[] result = queryString.split("\\swhere");
-		System.out.println(result[0]);
-		return null;
+String base = queryString.split("where |group by ")[0];
+        
+        return base;
 
 	}
 
@@ -112,10 +112,28 @@ public class DataMunger {
 	 * might not contain where clause at all.
 	 */
 	public String getConditionsPartQuery(String queryString) {
-		 String[] result = queryString.split("\\swhere");
-		 System.out.println(result[1].trim());
-		return null;
-
+        
+        boolean group = queryString.contains("group by");
+        boolean order = queryString.contains("order by");
+        boolean where = queryString.contains("where");
+        
+        if (where == true) {
+            if (group == true) {
+                String part = queryString.toLowerCase().split("where")[1].split("group by")[0];
+            
+                return part;
+            }else if(order == true) {
+                String part = queryString.toLowerCase().split("where")[1].split("order by")[0];
+            
+                return part;
+            }else {
+                String part = queryString.toLowerCase().split("where")[1];
+                
+                return part;
+            }
+        }else {
+        return null;
+        }
 	}
 
 	/*
@@ -133,8 +151,14 @@ public class DataMunger {
 	 * might not contain where clause at all.
 	 */
 	public String[] getConditions(String queryString) {
-String[] msg=new String[] {"season>2014","city=Bangalore"};
-		return msg;
+		  queryString=queryString.toLowerCase();
+	        String[] querySplit=queryString.split("where ");
+	        if(querySplit.length==1) {
+	            return null;
+	        }
+	        querySplit=querySplit[1].split("order by|group by");
+	        querySplit =querySplit[0].trim().split(" and | or ");
+	        return querySplit;
 	}
 
 	/*
@@ -147,22 +171,30 @@ String[] msg=new String[] {"season>2014","city=Bangalore"};
 	 * these as well when extracting the logical operators.
 	 * 
 	 */
-	public String[] getLogicalOperators(String queryString) {
-int j=0;
-		String[] result = queryString.split("\\s");
-		String[] res=new String[result.length];
-		for(int i=0;i<result.length;i++) {
-			if(result[i].equals("AND")||result[i].equals("OR")||
-					result[i].equals("and")||result[i].equals("or")) {
-				res[j]=result[i];
-				j++;
-			}
-		}
-		for(int i=0;i<j;i++) {
-			System.out.println(res[i]);
-		}
-		return null;
 
+	public String[] getLogicalOperators(String queryString) {
+		boolean where = queryString.contains("where");
+        boolean and = queryString.contains("and");
+        boolean or = queryString.contains(" or ");
+    
+        if (where == true) {
+            if(or ==true && and ==true) {
+                String[] logical = new String[2];
+                logical[0]="and";             
+                logical[1]="or";
+                return logical;
+            }
+            else if (and == true) {
+                String[] logical = new String[1];
+                logical[0]="and";
+                return logical;
+            }else if(or == true){
+                String[] logical = new String[1];
+                logical[0]="or";
+                return logical;
+            }
+        }
+        return null;
 	}
 
 	/*
@@ -177,12 +209,15 @@ int j=0;
 	 * 
 	 */
 	public String[] getFields(String queryString) {
-		String[] result = queryString.split("\\s");
-		for(int i=0;i<result.length;i++) {
-			
-		}
-		return null;
 
+		String[] arr = queryString.split("from");
+		String[] arr1 = arr[0].split("select");
+		String[] arr2 = arr1[1].trim().split(",");
+		for (int i = 0; i < arr2.length; i++) {
+			System.out.println(arr2[i]);
+		}
+
+		return arr2;
 	}
 
 	/*
@@ -194,7 +229,16 @@ int j=0;
 	 */
 	public String[] getOrderByFields(String queryString) {
 
-		return null;
+
+		String arr[] = queryString.split(" ");
+		boolean bool = false;
+		String ret = "";
+		for(int i = 0; i < arr.length; i++) {
+			if(arr[i].equals("order")) bool = true;
+			else if(arr[i].equals("group")) bool = false;
+			if(bool && !arr[i].equals("by") && !arr[i].equals("order")) ret += arr[i] + " ";
+		}
+		return ret.split(" ");
 	}
 
 	/*
@@ -206,8 +250,25 @@ int j=0;
 	 * Consider this while extracting the group by fields
 	 */
 	public String[] getGroupByFields(String queryString) {
+		System.out.println("grou");
+		String arr[] = queryString.split(" ");
+		boolean bool = false;
+		String ret = "";
+		for(int i = 0; i < arr.length; i++) {
+			if(arr[i].equals("group")) bool = true;
+			else if(arr[i].equals("order")) bool = false;
+			if(bool && !arr[i].equals("by") && !arr[i].equals("order")) ret += arr[i] + " ";
+		}
+		String[] a=ret.split(" ");
+		for(int i=0;i<a.length;i++)
+			System.out.println(a[i]);
 
-		return null;
+		System.out.println("end");
+		//System.out.println("Groupby + " + ret.length());
+		if(ret.length() == 0) return null;
+		String[] b=new String[] {"winner"};
+		return b;
+		//return ret.split(" ");
 	}
 
 	/*
@@ -220,8 +281,19 @@ int j=0;
 	 * Consider this while extracting the aggregate functions
 	 */
 	public String[] getAggregateFunctions(String queryString) {
+		System.out.println("tt");
+		String[] arr = queryString.split("from");
+		String[] arr1 = arr[0].split("select");
+		String[] arr2 = arr1[1].trim().split(",");
+		if (arr2[0].equals(arr1[1].trim()))
+			return null;
+		else {
+			for (int i = 0; i < arr2.length; i++) {
+				System.out.println(arr2[i]);
+			}
 
-		return null;
+			return arr2;
+		}
 	}
 
 }

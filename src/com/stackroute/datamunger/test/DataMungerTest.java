@@ -52,7 +52,6 @@ public class DataMungerTest {
 		
 	}
 
-    /*
 	@SuppressWarnings("deprecation")
 	@Test
 	public void testGetFileNameFailure() {
@@ -71,7 +70,6 @@ public class DataMungerTest {
 				new String[] { "*" }, dataMunger.getFields("select * from ipl.csv"));
 	}
 
-	/*
 	@SuppressWarnings("deprecation")
 	@Test
 	public void testGetAllColumnsFailure() {
@@ -528,6 +526,4 @@ public class DataMungerTest {
 		assertEquals("testGetAggregateFunctions() : Aggregate function does not return the correct values",new String[] { "count(city)","sum(win_by_runs)","min(win_by_runs)","max(win_by_runs)","avg(win_by_runs)"}, dataMunger.getAggregateFunctions("select count(city),sum(win_by_runs),min(win_by_runs),max(win_by_runs),avg(win_by_runs) from data/ipl.csv where season > 2014"));
 			
 	}
-*/
-
 }
